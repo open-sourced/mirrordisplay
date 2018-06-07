@@ -4,4 +4,8 @@
     <string name="title_activity_mirror_display">MirrorDisplay</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="latitude_for_weather">Latitude for weather</string>
+    <string name="longitude_for_weather">Longitude for weather</string>
+    <string name="darksky_api_key_for_weather">DarkSky API key for weather</string>
+    <string name="start">Start</string>
 </resources>

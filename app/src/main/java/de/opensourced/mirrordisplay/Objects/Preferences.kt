@@ -14,7 +14,9 @@ class PreferencesManager(val c: Context) {
     val preferences : Preferences
 
     data class Preferences(
-            @SerializedName("darkSkyApiKey") var darkSkyApiKey : String =""
+            @SerializedName("darkSkyApiKey") var darkSkyApiKey : String ="",
+            @SerializedName("weatherLatitude") var weatherLatitude : String ="",
+            @SerializedName("weatherLongitude") var weatherLongitude : String =""
     )
 
     init {

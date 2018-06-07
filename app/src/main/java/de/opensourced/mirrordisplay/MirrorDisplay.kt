@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.johnhiott.darkskyandroidlib.models.DataPoint
 import de.opensourced.mirrordisplay.Objects.PreferencesManager
+import de.opensourced.mirrordisplay.services.AgendaService
 import kotlinx.android.synthetic.main.activity_mirror_display.*
 import de.opensourced.mirrordisplay.services.ForecastService
 import de.opensourced.mirrordisplay.services.TimeService
@@ -45,13 +46,20 @@ class MirrorDisplay : AppCompatActivity() {
         // Weatherservice
         val weatherIconGenerator = WeatherIconGenerator()
         forecastService = ForecastService(
-                "50.7753",
-                "6.0839",
+                preferencesManager.preferences.weatherLatitude,
+                preferencesManager.preferences.weatherLongitude,
                 preferencesManager.preferences.darkSkyApiKey,
                 Runnable { runOnUiThread({ displayWeather(weatherIconGenerator) }) },
                 Runnable { }
         )
         forecastService.startService()
+        // Agendaservice
+        val agendaService = AgendaService(
+                this,
+                Runnable {  },
+                Runnable {  }
+        )
+        agendaService.startService()
     }
 
     fun displayWeather(weatherIconGenerator: WeatherIconGenerator) {
