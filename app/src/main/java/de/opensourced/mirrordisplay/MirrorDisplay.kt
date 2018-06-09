@@ -47,7 +47,7 @@ class MirrorDisplay : AppCompatActivity() {
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         // Set view
         setContentView(R.layout.activity_mirror_display)
-        currentLocale = ConfigurationCompat.getLocales(getResources().configuration)[0]
+        currentLocale = ConfigurationCompat.getLocales(resources.configuration)[0]
         val preferencesManager = PreferencesManager(this)
         //Setup calendar view
         viewCalendar.layoutManager = LinearLayoutManager(this)

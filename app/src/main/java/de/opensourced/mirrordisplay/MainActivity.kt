@@ -2,8 +2,6 @@ package de.opensourced.mirrordisplay
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.design.widget.TextInputEditText
-import android.widget.EditText
 import de.opensourced.mirrordisplay.Objects.PreferencesManager
 import android.widget.Toast
 import android.content.Intent
@@ -13,7 +11,7 @@ import java.util.regex.Pattern
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var preferencesManager: PreferencesManager
+    private lateinit var preferencesManager: PreferencesManager
 
     fun startMirrorDisplay(v: View) {
         if (validate()) {
@@ -29,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun validate(): Boolean {
-        val regexLongLat = Pattern.compile("^\\-?\\d+(\\.\\d+)*").toRegex()
+        val regexLongLat = Pattern.compile("^-?\\d+(\\.\\d+)*").toRegex()
         val regexUrl = Pattern.compile("^[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").toRegex()
         if(!inputWeatherLatitude.text.matches(regexLongLat)) {
             Toast.makeText(this, "Latitude invalid, e.g. 50.6666 required!",
