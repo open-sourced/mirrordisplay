@@ -19,19 +19,44 @@ import de.opensourced.mirrordisplay.util.Constants.Companion.VELOCITY
 import de.opensourced.mirrordisplay.util.WeatherIconGenerator
 import java.util.*
 import kotlin.math.roundToInt
+import android.support.v7.widget.LinearLayoutManager
+import android.view.Window
+import android.view.WindowManager
+import de.opensourced.mirrordisplay.adapter.CalendarItemAdapter
+import de.opensourced.mirrordisplay.adapter.RssfeedItemAdapter
+import de.opensourced.mirrordisplay.models.CalendarEvent
+import de.opensourced.mirrordisplay.models.RssFeedData
+import de.opensourced.mirrordisplay.services.RssService
+import kotlin.collections.ArrayList
 
-// https://api.darksky.net/forecast/94f7e877fc73ad3bbffb4be4496c5408/50.7753,6.0839
 class MirrorDisplay : AppCompatActivity() {
 
     private lateinit var forecastService: ForecastService
     private lateinit var timeService: TimeService
+    private lateinit var agendaService: AgendaService
+    private lateinit var rssService: RssService
     private lateinit var currentLocale: Locale
+    private val calenderEvents : ArrayList<CalendarEvent> = ArrayList()
+    private val rssFeedData : ArrayList<RssFeedData> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Fullscreen
+        requestWindowFeature(Window.FEATURE_NO_TITLE)
+        window.decorView.systemUiVisibility = 0x10
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        // Set view
         setContentView(R.layout.activity_mirror_display)
         currentLocale = ConfigurationCompat.getLocales(getResources().configuration)[0]
         val preferencesManager = PreferencesManager(this)
+        //Setup calendar view
+        viewCalendar.layoutManager = LinearLayoutManager(this)
+        val calendarItemAdapter = CalendarItemAdapter(this, calenderEvents)
+        viewCalendar.adapter = calendarItemAdapter
+        //Setup rss view
+        viewRssfeed.layoutManager = LinearLayoutManager(this)
+        val rssFeedItemAdapter = RssfeedItemAdapter(this, rssFeedData)
+        viewRssfeed.adapter = rssFeedItemAdapter
         // Timeservice
         timeService = TimeService(
                 this,
@@ -54,15 +79,24 @@ class MirrorDisplay : AppCompatActivity() {
         )
         forecastService.startService()
         // Agendaservice
-        val agendaService = AgendaService(
+        agendaService = AgendaService(
                 this,
-                Runnable {  },
-                Runnable {  }
+                Runnable { runOnUiThread({ displayCalendar() }) },
+                Runnable { }
         )
         agendaService.startService()
+        // Rssservice
+        rssService = RssService(
+                this,
+                preferencesManager.preferences.rssUrl,
+                preferencesManager.preferences.rssNumber,
+                Runnable { runOnUiThread({ displayRssFeed() }) },
+                Runnable { }
+        )
+        rssService.startService()
     }
 
-    fun displayWeather(weatherIconGenerator: WeatherIconGenerator) {
+    private fun displayWeather(weatherIconGenerator: WeatherIconGenerator) {
         forecastService.lastWeatherResponse?.let {
             val currently = it.currently
             imageWeatherCurrent.setImageResource(weatherIconGenerator.getIcon(currently.icon))
@@ -119,7 +153,7 @@ class MirrorDisplay : AppCompatActivity() {
 
     private fun renderWeather(weatherIconGenerator: WeatherIconGenerator, container: LinearLayout,
                               weatherData: DataPoint?, txtWeekday: TextView, txtTemperature: TextView,
-                              txtPrecipitation : TextView, txtHumidity : TextView, txtWind : TextView,
+                              txtPrecipitation: TextView, txtHumidity: TextView, txtWind: TextView,
                               imgWeatherIcon: ImageView) {
         weatherData?.let {
             container.visibility = View.VISIBLE
@@ -133,10 +167,21 @@ class MirrorDisplay : AppCompatActivity() {
         }
     }
 
-    fun displayTime(timeStr: String, dateStr: String) {
+    private fun displayTime(timeStr: String, dateStr: String) {
         txtTime.text = timeStr
         txtDate.text = dateStr
     }
 
+    private fun displayCalendar() {
+        calenderEvents.clear()
+        calenderEvents.addAll(agendaService.events)
+        viewCalendar.adapter.notifyDataSetChanged()
+    }
+
+    private fun displayRssFeed() {
+        rssFeedData.clear()
+        rssFeedData.addAll(rssService.feedData)
+        viewRssfeed.adapter.notifyDataSetChanged()
+    }
 
 }
