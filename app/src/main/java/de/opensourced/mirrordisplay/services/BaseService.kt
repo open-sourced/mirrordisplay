@@ -1,23 +1,17 @@
 package de.opensourced.mirrordisplay.services
 
-import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.ScheduledThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
 
 
 abstract class BaseService(val callbackOnUpdate: Runnable, val callbackOnError: Runnable) : MirrorService {
 
-    private val executorService: ScheduledThreadPoolExecutor = ScheduledThreadPoolExecutor(1)
+    private val executorService: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
     private lateinit var serviceTaskFuture: ScheduledFuture<*>
-    val isRunning: AtomicBoolean
-    var lastException: RuntimeException? = null
+    val isRunning: AtomicBoolean = AtomicBoolean(false)
+    var lastException: Throwable? = null
 
-    init {
-        isRunning = AtomicBoolean(false)
-    }
-
-    override fun getInterval(): Long {
+    override fun getIntervalMilliseconds(): Long {
         return 100
     }
 
@@ -29,7 +23,7 @@ abstract class BaseService(val callbackOnUpdate: Runnable, val callbackOnError: 
                     {
                         try {
                             work()
-                        } catch (ex: RuntimeException) {
+                        } catch (ex: Throwable) {
                             lastException = ex
                             callbackOnError.run()
                         } finally {
@@ -37,8 +31,8 @@ abstract class BaseService(val callbackOnUpdate: Runnable, val callbackOnError: 
                         }
                     },
                     0,
-                    getInterval(),
-                    TimeUnit.SECONDS
+                    getIntervalMilliseconds(),
+                    TimeUnit.MILLISECONDS
             )
         }
     }

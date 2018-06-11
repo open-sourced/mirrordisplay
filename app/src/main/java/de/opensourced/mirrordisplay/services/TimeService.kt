@@ -21,7 +21,7 @@ class TimeService(context: Context, callbackOnUpdate: Runnable, callbackOnError:
         timeFormat = SimpleDateFormat("HH:mm", currentLocale)
     }
 
-    override fun getInterval(): Long {
+    override fun getIntervalMilliseconds(): Long {
         return 10
     }
 

@@ -20,6 +20,7 @@ import de.opensourced.mirrordisplay.util.WeatherIconGenerator
 import java.util.*
 import kotlin.math.roundToInt
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import de.opensourced.mirrordisplay.adapter.CalendarItemAdapter
@@ -36,8 +37,8 @@ class MirrorDisplay : AppCompatActivity() {
     private lateinit var agendaService: AgendaService
     private lateinit var rssService: RssService
     private lateinit var currentLocale: Locale
-    private val calenderEvents : ArrayList<CalendarEvent> = ArrayList()
-    private val rssFeedData : ArrayList<RssFeedData> = ArrayList()
+    private val calenderEvents: ArrayList<CalendarEvent> = ArrayList()
+    private val rssFeedData: ArrayList<RssFeedData> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,7 +66,9 @@ class MirrorDisplay : AppCompatActivity() {
                         displayTime(timeService.timeString, timeService.dateString)
                     })
                 },
-                Runnable { }
+                Runnable {
+                    Log.e("TimeService", "Error: " + timeService.lastException)
+                }
         )
         timeService.startService()
         // Weatherservice
@@ -75,14 +78,14 @@ class MirrorDisplay : AppCompatActivity() {
                 preferencesManager.preferences.weatherLongitude,
                 preferencesManager.preferences.darkSkyApiKey,
                 Runnable { runOnUiThread({ displayWeather(weatherIconGenerator) }) },
-                Runnable { }
+                Runnable { Log.e("ForecastService", "Error: " + forecastService.lastException) }
         )
         forecastService.startService()
         // Agendaservice
         agendaService = AgendaService(
                 this,
                 Runnable { runOnUiThread({ displayCalendar() }) },
-                Runnable { }
+                Runnable { Log.e("AgendaService", "Error: " + agendaService.lastException) }
         )
         agendaService.startService()
         // Rssservice
@@ -91,7 +94,7 @@ class MirrorDisplay : AppCompatActivity() {
                 preferencesManager.preferences.rssUrl,
                 preferencesManager.preferences.rssNumber,
                 Runnable { runOnUiThread({ displayRssFeed() }) },
-                Runnable { }
+                Runnable { Log.e("RssService", "Error: " + rssService.lastException) }
         )
         rssService.startService()
     }
@@ -175,8 +178,8 @@ class MirrorDisplay : AppCompatActivity() {
     private fun displayCalendar() {
         calenderEvents.clear()
         calenderEvents.addAll(agendaService.events)
-        if(calenderEvents.isEmpty()) {
-            calenderEvents.add(CalendarEvent("keine Termine vorhanden.","", 0,0,""))
+        if (calenderEvents.isEmpty()) {
+            calenderEvents.add(CalendarEvent("keine Termine vorhanden.", "", 0, 0, ""))
         }
         viewCalendar.adapter.notifyDataSetChanged()
     }

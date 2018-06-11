@@ -26,7 +26,7 @@ class ForecastService(lat: String, long: String, darkSkyApiKey: String, callback
         weatherRequest.setLanguage(Request.Language.ENGLISH)
     }
 
-    override fun getInterval(): Long {
+    override fun getIntervalMilliseconds(): Long {
         return 30 * 60 * 1000
     }
 

@@ -15,7 +15,7 @@ class RssService(private val context: Context, val feedUrl: String, val numberOf
 
     val feedData = ArrayList<RssFeedData>()
 
-    override fun getInterval(): Long {
+    override fun getIntervalMilliseconds(): Long {
         return 5 * 60 * 1000
     }
 

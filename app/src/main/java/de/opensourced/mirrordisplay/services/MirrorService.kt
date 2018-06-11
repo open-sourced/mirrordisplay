@@ -2,7 +2,7 @@ package de.opensourced.mirrordisplay.services
 
 interface MirrorService {
 
-    fun getInterval() : Long {
+    fun getIntervalMilliseconds() : Long {
         return 100
     }
 

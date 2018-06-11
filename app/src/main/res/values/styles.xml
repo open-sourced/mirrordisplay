@@ -27,6 +27,7 @@
 
     <style name="DarkMirror" parent="AppTheme" >
         <item name="android:textColorSecondary">@color/text_color_secondary</item>
+        <item name="android:textColorPrimary">@color/text_color_secondary</item>
     </style>
 
 </resources>

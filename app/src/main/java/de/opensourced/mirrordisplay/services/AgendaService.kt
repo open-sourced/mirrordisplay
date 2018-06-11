@@ -13,8 +13,8 @@ class AgendaService(private val context: Context, callbackOnUpdate: Runnable,
 
     val events = ArrayList<CalendarEvent>()
 
-    override fun getInterval(): Long {
-        return 3 * 60 * 1000
+    override fun getIntervalMilliseconds(): Long {
+        return 5 * 60 * 1000
     }
 
     override fun work() {
