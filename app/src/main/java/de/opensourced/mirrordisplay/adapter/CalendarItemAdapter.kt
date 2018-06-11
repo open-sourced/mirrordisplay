@@ -33,7 +33,11 @@ class CalendarItemAdapter(private val context: Context, private val items: Array
         cal.timeInMillis = calendarEvent.end
         val endDate = DateFormat.format(CALENDAR_TIME_FORMAT, cal).toString()
         holderCalenderItem.calendarItem_tvTitle.text = calendarEvent.title
-        holderCalenderItem.calendarItem_tvTime.text = "$startDate - $endDate"
+        if(calendarEvent.start >0 && calendarEvent.start >0) {
+            holderCalenderItem.calendarItem_tvTime.text = "$startDate - $endDate"
+        }else{
+            holderCalenderItem.calendarItem_tvTime.text = ""
+        }
     }
 
     override fun getItemCount(): Int {

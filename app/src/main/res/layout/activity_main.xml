@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingLeft="14dp"
+    android:paddingRight="14dp"
+    android:paddingTop="14dp"
     tools:context=".MainActivity"
     tools:layout_editor_absoluteY="81dp">
 
@@ -17,8 +19,8 @@
             android:id="@+id/txtSettingsWeatherTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="@string/weather_settings" />
+            android:text="@string/weather_settings"
+            android:textSize="18sp" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -34,8 +36,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
@@ -44,10 +46,10 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/inputWeatherLatitude"
-                    android:inputType="numberDecimal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/latitude_for_weather" />
+                    android:hint="@string/latitude_for_weather"
+                    android:inputType="numberDecimal" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
@@ -57,10 +59,10 @@
 
                 <android.support.design.widget.TextInputEditText
                     android:id="@+id/inputWeatherLongitude"
-                    android:inputType="numberDecimal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/longitude_for_weather" />
+                    android:hint="@string/longitude_for_weather"
+                    android:inputType="numberDecimal" />
             </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>
@@ -69,8 +71,8 @@
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:text="@string/rss_settings" />
+            android:text="@string/rss_settings"
+            android:textSize="18sp" />
 
         <LinearLayout
             android:layout_width="match_parent"

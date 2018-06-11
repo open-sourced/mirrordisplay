@@ -33,15 +33,59 @@ class CalendarUtil {
         }
 
         /**
+         * Fetches calendar events in given timeframe, that means start and end time of event must be in timeframe
+         *
          * [calendarId] might be null to lookup events from all available calendars or
          * specified to only query a specific calendar
          * [start] and [end] can also be null to have no time restriction
          */
-        fun getCalendarEvents(context: Context, calendarId: Int?, start: Calendar?, end: Calendar?): List<CalendarEvent> {
+        fun getCalendarEventsInTimeframe(context: Context, calendarId: Int?, start: Calendar?, end: Calendar?): List<CalendarEvent> {
             val timeSelectionStr =
                     (if (start != null) "dtstart >" + start.getTimeInMillis() else "") +
                             (if (start != null && end != null) " AND " else "") +
                             (if (end != null) "dtend <" + end.getTimeInMillis() else "")
+
+            val events = ArrayList<CalendarEvent>()
+            val cursor = context.getContentResolver().query(
+                    Uri.parse("content://com.android.calendar/events"),
+                    arrayOf("calendar_id", "title", "description", "dtstart", "dtend", "eventLocation"),
+                    (if (calendarId != null) "(calendar_id=$calendarId) " else "") +
+                            (if ((start != null || end != null) && calendarId != null) " AND " else "") +
+                            if (!timeSelectionStr.isEmpty()) "($timeSelectionStr)" else "",
+                    null,
+                    null
+            )
+            cursor.moveToFirst()
+            val length = cursor.getCount()
+            for (i in 0 until length) {
+                val ce = CalendarEvent(
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getLong(3),
+                        cursor.getLong(4),
+                        cursor.getString(5)
+                )
+                if (cursor.getString(1).isNotEmpty()) {
+                    events.add(ce)
+                }
+                cursor.moveToNext()
+            }
+            cursor.close()
+            return events
+        }
+
+        /**
+         * Fetches events with start time in given timeframe
+         *
+         * [calendarId] might be null to lookup events from all available calendars or
+         * specified to only query a specific calendar
+         * [start] and [end] can also be null to have no time restriction
+         */
+        fun getCalendarEventsByStart(context: Context, calendarId: Int?, start: Calendar?, end: Calendar?): List<CalendarEvent> {
+            val timeSelectionStr =
+                    (if (start != null) "dtstart >" + start.getTimeInMillis() else "") +
+                            (if (start != null && end != null) " AND " else "") +
+                            (if (end != null) "dtstart <" + end.getTimeInMillis() else "")
 
             val events = ArrayList<CalendarEvent>()
             val cursor = context.getContentResolver().query(

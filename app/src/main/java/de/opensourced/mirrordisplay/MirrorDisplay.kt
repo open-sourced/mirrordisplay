@@ -175,6 +175,9 @@ class MirrorDisplay : AppCompatActivity() {
     private fun displayCalendar() {
         calenderEvents.clear()
         calenderEvents.addAll(agendaService.events)
+        if(calenderEvents.isEmpty()) {
+            calenderEvents.add(CalendarEvent("keine Termine vorhanden.","", 0,0,""))
+        }
         viewCalendar.adapter.notifyDataSetChanged()
     }
 

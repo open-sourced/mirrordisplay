@@ -4,6 +4,7 @@ import android.content.Context
 import de.opensourced.mirrordisplay.models.RssFeedData
 import com.prof.rssparser.Article
 import android.util.Log
+import android.widget.Toast
 import com.prof.rssparser.Parser
 import kotlin.collections.ArrayList
 
@@ -15,7 +16,7 @@ class RssService(private val context: Context, val feedUrl: String, val numberOf
     val feedData = ArrayList<RssFeedData>()
 
     override fun getInterval(): Long {
-        return 30 * 60 * 1000
+        return 5 * 60 * 1000
     }
 
     override fun work() {
