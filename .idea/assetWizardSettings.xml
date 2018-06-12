@@ -55,8 +55,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="imageAsset" value="$PROJECT_DIR$/app/src/main/res/drawable-nodpi/ic_wind_stats.png" />
-                                      <entry key="outputName" value="ic_rssfeed" />
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="imageAsset" value="$USER_HOME$/Downloads/snowflake.png" />
+                                      <entry key="outputName" value="ic_snowflake" />
                                       <entry key="theme" value="HOLO_DARK" />
                                     </map>
                                   </option>

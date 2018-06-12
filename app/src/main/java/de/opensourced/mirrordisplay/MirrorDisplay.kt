@@ -116,7 +116,13 @@ class MirrorDisplay : AppCompatActivity() {
                     "%d %$PERCENT",
                     (currently.humidity.toDouble() * 100).toInt()
             )
-            txtWindCurrent.text = String.format("%s $VELOCITY", currently.windSpeed)
+            txtWindCurrent.text = String.format("%.2f $VELOCITY", currently.windSpeed.toDouble() * 3600 / 1000)
+            val precipType = currently.precipType
+            if(precipType.equals("snow") || precipType.equals("sleet")) {
+                imageWeatherSnow.visibility = View.VISIBLE
+            }else{
+                imageWeatherSnow.visibility = View.INVISIBLE
+            }
 
             renderWeather(
                     weatherIconGenerator,
@@ -165,7 +171,7 @@ class MirrorDisplay : AppCompatActivity() {
             txtTemperature.text = String.format("%d $TEMPERATURE_METRIC / %d $TEMPERATURE_METRIC", it.temperatureMin.roundToInt(), it.temperatureMax.roundToInt())
             txtPrecipitation.text = String.format("%d %$PERCENT", (it.precipProbability.toDouble() * 100).toInt())
             txtHumidity.text = String.format("%d %$PERCENT", (it.humidity.toDouble() * 100).toInt())
-            txtWind.text = String.format("%s $VELOCITY", it.windSpeed)
+            txtWind.text = String.format("%.2f $VELOCITY", it.windSpeed.toDouble() * 3600 / 1000)
             imgWeatherIcon.setImageResource(weatherIconGenerator.getIcon(it.icon))
         }
     }
