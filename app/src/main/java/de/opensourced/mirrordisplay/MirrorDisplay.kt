@@ -118,7 +118,7 @@ class MirrorDisplay : AppCompatActivity() {
             )
             txtWindCurrent.text = String.format("%.2f $VELOCITY", currently.windSpeed.toDouble() * 3600 / 1000)
             val precipType = currently.precipType
-            if(precipType.equals("snow") || precipType.equals("sleet")) {
+            if(precipType != null && (precipType.equals("snow") || precipType.equals("sleet"))) {
                 imageWeatherSnow.visibility = View.VISIBLE
             }else{
                 imageWeatherSnow.visibility = View.INVISIBLE
