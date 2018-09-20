@@ -10,13 +10,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import de.opensourced.mirrordisplay.R
 import de.opensourced.mirrordisplay.models.CalendarEvent
+import de.opensourced.mirrordisplay.util.Constants.Companion.CALENDAR_TIME_FORMAT
 import kotlinx.android.synthetic.main.calendar_item.view.*
 import java.util.*
+import kotlin.collections.HashSet
 
-class CalendarItemAdapter(private val context: Context, private val items: ArrayList<CalendarEvent>)
+class CalendarItemAdapter(private val context: Context, private val items: HashSet<CalendarEvent>)
     : RecyclerView.Adapter<ViewHolderCalenderItem>() {
 
-    private val CALENDAR_TIME_FORMAT = "hh:mm:ss"
 
     private val currentLocale : Locale = ConfigurationCompat.getLocales(context.resources.configuration)[0]
 
@@ -27,16 +28,17 @@ class CalendarItemAdapter(private val context: Context, private val items: Array
 
     override fun onBindViewHolder(holderCalenderItem: ViewHolderCalenderItem, position: Int) {
         val cal = Calendar.getInstance(currentLocale)
-        val calendarEvent = items[position]
+        val calendarEvent = items.elementAt(position)
         cal.timeInMillis = calendarEvent.start
         val startDate = DateFormat.format(CALENDAR_TIME_FORMAT, cal).toString()
         cal.timeInMillis = calendarEvent.end
         val endDate = DateFormat.format(CALENDAR_TIME_FORMAT, cal).toString()
-        holderCalenderItem.calendarItem_tvTitle.text = calendarEvent.title
+        holderCalenderItem.calendarItemTvTitle.text = calendarEvent.title
         if(calendarEvent.start >0 && calendarEvent.start >0) {
-            holderCalenderItem.calendarItem_tvTime.text = "$startDate - $endDate"
+
+            holderCalenderItem.calendarItemTvTime.text = "$startDate - $endDate"
         }else{
-            holderCalenderItem.calendarItem_tvTime.text = ""
+            holderCalenderItem.calendarItemTvTime.text = ""
         }
     }
 
@@ -47,6 +49,6 @@ class CalendarItemAdapter(private val context: Context, private val items: Array
 }
 
 class ViewHolderCalenderItem(view: View) : RecyclerView.ViewHolder(view) {
-    val calendarItem_tvTitle: TextView = view.calendarItem_tvTitle
-    val calendarItem_tvTime: TextView = view.calendarItem_tvTime
+    val calendarItemTvTitle: TextView = view.calendarItem_tvTitle
+    val calendarItemTvTime: TextView = view.calendarItem_tvTime
 }

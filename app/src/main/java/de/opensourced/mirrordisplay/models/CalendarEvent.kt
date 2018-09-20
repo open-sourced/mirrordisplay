@@ -1,7 +1,5 @@
 package de.opensourced.mirrordisplay.models
 
-import java.sql.Timestamp
-
 class CalendarEvent(
         val title : String,
         val note : String,

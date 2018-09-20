@@ -20,10 +20,10 @@ class ForecastService(lat: String, long: String, darkSkyApiKey: String, callback
         ForecastApi.create(darkSkyApiKey)
         weatherRequestBuilder = RequestBuilder()
         weatherRequest = Request()
-        weatherRequest.setLat(lat)
-        weatherRequest.setLng(long)
-        weatherRequest.setUnits(Request.Units.SI)
-        weatherRequest.setLanguage(Request.Language.ENGLISH)
+        weatherRequest.lat = lat
+        weatherRequest.lng = long
+        weatherRequest.units = Request.Units.SI
+        weatherRequest.language = Request.Language.ENGLISH
     }
 
     override fun getIntervalMilliseconds(): Long {

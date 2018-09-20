@@ -14,4 +14,5 @@
     <string name="rss_settings">RSS settings</string>
     <string name="rss_url">RSS url</string>
     <string name="number_of_feeds">Number of feeds</string>
+    <string name="EMPTY_AGENDA">keine Termine vorhanden.</string>
 </resources>

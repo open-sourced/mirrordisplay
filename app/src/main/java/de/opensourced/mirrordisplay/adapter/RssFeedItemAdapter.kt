@@ -10,14 +10,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import de.opensourced.mirrordisplay.R
 import de.opensourced.mirrordisplay.models.RssFeedData
-import kotlinx.android.synthetic.main.calendar_item.view.*
+import de.opensourced.mirrordisplay.util.Constants.Companion.RSSFEED_TIME_FORMAT
 import kotlinx.android.synthetic.main.rssfeed_item.view.*
 import java.util.*
+import kotlin.collections.HashSet
 
-class RssfeedItemAdapter(private val context: Context, private val items: ArrayList<RssFeedData>)
+class RssFeedItemAdapter(private val context: Context, private val items: HashSet<RssFeedData>)
     : RecyclerView.Adapter<ViewHolderRssFeed>() {
 
-    private val RSSFEED_TIME_FORMAT = "dd-MM-yyyy hh:mm:ss"
 
     private val currentLocale : Locale = ConfigurationCompat.getLocales(context.resources.configuration)[0]
 
@@ -28,11 +28,11 @@ class RssfeedItemAdapter(private val context: Context, private val items: ArrayL
 
     override fun onBindViewHolder(viewHolderRssFeed: ViewHolderRssFeed, position: Int) {
         val cal = Calendar.getInstance(currentLocale)
-        val rssFeedItem = items[position]
+        val rssFeedItem = items.elementAt(position)
         cal.timeInMillis = rssFeedItem.time
         val pubDate = DateFormat.format(RSSFEED_TIME_FORMAT, cal).toString()
-        viewHolderRssFeed.calendarItem_tvTitle.text = rssFeedItem.title
-        viewHolderRssFeed.calendarItem_tvTime.text = pubDate
+        viewHolderRssFeed.calendarItemTvTitle.text = rssFeedItem.title
+        viewHolderRssFeed.calendarItemTvTime.text = pubDate
     }
 
     override fun getItemCount(): Int {
@@ -42,6 +42,6 @@ class RssfeedItemAdapter(private val context: Context, private val items: ArrayL
 }
 
 class ViewHolderRssFeed(view: View) : RecyclerView.ViewHolder(view) {
-    val calendarItem_tvTitle: TextView = view.rssfeedItem_tvTitle
-    val calendarItem_tvTime: TextView = view.rssfeedItem_tvTime
+    val calendarItemTvTitle: TextView = view.rssfeedItem_tvTitle
+    val calendarItemTvTime: TextView = view.rssfeedItem_tvTime
 }

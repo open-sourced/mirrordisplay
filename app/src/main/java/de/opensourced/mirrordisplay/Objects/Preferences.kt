@@ -8,8 +8,8 @@ import com.google.gson.annotations.SerializedName
 
 class PreferencesManager(val c: Context) {
 
-    private val KEY_CONTENT: String = "PREFERENCES_MIRROR_DISPLAY"
-    private val KEY_APP_SETTINGS: String = "PREFERENCES_MIRROR_DISPLAY_APP_SETTINGS"
+    private val keyContent: String = "PREFERENCES_MIRROR_DISPLAY"
+    private val keyAppSettings: String = "PREFERENCES_MIRROR_DISPLAY_APP_SETTINGS"
 
     val preferences: Preferences
 
@@ -26,16 +26,16 @@ class PreferencesManager(val c: Context) {
     }
 
     fun save() {
-        val prefsEditor = c.getSharedPreferences(KEY_APP_SETTINGS, MODE_PRIVATE).edit()
+        val prefsEditor = c.getSharedPreferences(keyAppSettings, MODE_PRIVATE).edit()
         val gson = Gson()
         val json = gson.toJson(preferences)
-        prefsEditor.putString(KEY_CONTENT, json)
+        prefsEditor.putString(keyContent, json)
         prefsEditor.apply()
     }
 
     private fun load(c: Context): Preferences {
         val gson = Gson()
-        val json = c.getSharedPreferences(KEY_APP_SETTINGS, MODE_PRIVATE).getString(KEY_CONTENT, "")
+        val json = c.getSharedPreferences(keyAppSettings, MODE_PRIVATE).getString(keyContent, "")
         return gson.fromJson(json, Preferences::class.java) ?: Preferences()
     }
 }

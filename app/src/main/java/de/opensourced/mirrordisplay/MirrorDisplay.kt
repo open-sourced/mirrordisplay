@@ -24,11 +24,12 @@ import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import de.opensourced.mirrordisplay.adapter.CalendarItemAdapter
-import de.opensourced.mirrordisplay.adapter.RssfeedItemAdapter
+import de.opensourced.mirrordisplay.adapter.RssFeedItemAdapter
 import de.opensourced.mirrordisplay.models.CalendarEvent
 import de.opensourced.mirrordisplay.models.RssFeedData
 import de.opensourced.mirrordisplay.services.RssService
-import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
+import kotlin.collections.LinkedHashSet
 
 class MirrorDisplay : AppCompatActivity() {
 
@@ -37,8 +38,8 @@ class MirrorDisplay : AppCompatActivity() {
     private lateinit var agendaService: AgendaService
     private lateinit var rssService: RssService
     private lateinit var currentLocale: Locale
-    private val calenderEvents: ArrayList<CalendarEvent> = ArrayList()
-    private val rssFeedData: ArrayList<RssFeedData> = ArrayList()
+    private val calenderEvents: HashSet<CalendarEvent> = LinkedHashSet()
+    private val rssFeedData: HashSet<RssFeedData> = LinkedHashSet()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,9 +57,9 @@ class MirrorDisplay : AppCompatActivity() {
         viewCalendar.adapter = calendarItemAdapter
         //Setup rss view
         viewRssfeed.layoutManager = LinearLayoutManager(this)
-        val rssFeedItemAdapter = RssfeedItemAdapter(this, rssFeedData)
+        val rssFeedItemAdapter = RssFeedItemAdapter(this, rssFeedData)
         viewRssfeed.adapter = rssFeedItemAdapter
-        // Timeservice
+        // Services
         timeService = TimeService(
                 this,
                 Runnable {
@@ -71,7 +72,6 @@ class MirrorDisplay : AppCompatActivity() {
                 }
         )
         timeService.startService()
-        // Weatherservice
         val weatherIconGenerator = WeatherIconGenerator()
         forecastService = ForecastService(
                 preferencesManager.preferences.weatherLatitude,
@@ -81,14 +81,12 @@ class MirrorDisplay : AppCompatActivity() {
                 Runnable { Log.e("ForecastService", "Error: " + forecastService.lastException) }
         )
         forecastService.startService()
-        // Agendaservice
         agendaService = AgendaService(
                 this,
                 Runnable { runOnUiThread({ displayCalendar() }) },
                 Runnable { Log.e("AgendaService", "Error: " + agendaService.lastException) }
         )
         agendaService.startService()
-        // Rssservice
         rssService = RssService(
                 this,
                 preferencesManager.preferences.rssUrl,
@@ -118,7 +116,7 @@ class MirrorDisplay : AppCompatActivity() {
             )
             txtWindCurrent.text = String.format("%.2f $VELOCITY", currently.windSpeed.toDouble() * 3600 / 1000)
             val precipType = currently.precipType
-            if(precipType != null && (precipType.equals("snow") || precipType.equals("sleet"))) {
+            if(precipType != null && (precipType == "snow" || precipType == "sleet")) {
                 imageWeatherSnow.visibility = View.VISIBLE
             }else{
                 imageWeatherSnow.visibility = View.INVISIBLE
@@ -185,7 +183,7 @@ class MirrorDisplay : AppCompatActivity() {
         calenderEvents.clear()
         calenderEvents.addAll(agendaService.events)
         if (calenderEvents.isEmpty()) {
-            calenderEvents.add(CalendarEvent("keine Termine vorhanden.", "", 0, 0, ""))
+            calenderEvents.add(CalendarEvent(getString(R.string.EMPTY_AGENDA), "", 0, 0, ""))
         }
         viewCalendar.adapter.notifyDataSetChanged()
     }
