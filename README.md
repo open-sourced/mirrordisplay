@@ -17,3 +17,6 @@ The displayed data is update every 15 minutes.
   - Multilanguage
   - Landscape mode
   - Support for smaller screens
+  
+## License
+This project is licensed under the terms of the MIT license.
