@@ -5,6 +5,7 @@ import android.os.Bundle
 import de.opensourced.mirrordisplay.Objects.PreferencesManager
 import android.widget.Toast
 import android.content.Intent
+import android.util.Patterns
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.regex.Pattern
@@ -28,7 +29,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun validate(): Boolean {
         val regexLongLat = Pattern.compile("^-?\\d+(\\.\\d+)*").toRegex()
-        val regexUrl = Pattern.compile("^[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]").toRegex()
         if(!inputWeatherLatitude.text.matches(regexLongLat)) {
             Toast.makeText(this, "Latitude invalid, e.g. 50.6666 required!",
                     Toast.LENGTH_LONG).show()
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
                     Toast.LENGTH_LONG).show()
             return false
         }
-        if(!inputRssUrl.text.matches(regexUrl)) {
+        if(!Patterns.WEB_URL.matcher(inputRssUrl.text).matches()) {
             Toast.makeText(this, "RSS url invalid!",
                     Toast.LENGTH_LONG).show()
             return false
