@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     fun startMirrorDisplay(v: View) {
         if (validate()) {
-            preferencesManager.preferences.darkSkyApiKey = inputDarkSkyApi.text.toString()
+            preferencesManager.preferences.weatherApiKey = inputWeatherApiKey.text.toString()
             preferencesManager.preferences.weatherLatitude = inputWeatherLatitude.text.toString()
             preferencesManager.preferences.weatherLongitude = inputWeatherLongitude.text.toString()
             preferencesManager.preferences.rssUrl = inputRssUrl.text.toString()
@@ -29,18 +29,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun validate(): Boolean {
         val regexLongLat = Pattern.compile("^-?\\d+(\\.\\d+)*").toRegex()
-        if(!inputWeatherLatitude.text.matches(regexLongLat)) {
+        if(inputWeatherLatitude.text?.matches(regexLongLat) == false) {
             Toast.makeText(this, "Latitude invalid, e.g. 50.6666 required!",
                     Toast.LENGTH_LONG).show()
             return false
         }
-        if(!inputWeatherLongitude.text.matches(regexLongLat)) {
+        if(inputWeatherLongitude.text?.matches(regexLongLat) == false) {
             Toast.makeText(this, "Longitude invalid, e.g. 50.6666 required!",
                     Toast.LENGTH_LONG).show()
             return false
         }
-        if(inputDarkSkyApi.text.isEmpty()) {
-            Toast.makeText(this, "DarkSky API key missing!",
+        if(inputWeatherApiKey.text?.isEmpty() == true) {
+            Toast.makeText(this, "OpenWeather API key missing!",
                     Toast.LENGTH_LONG).show()
             return false
         }
@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         preferencesManager = PreferencesManager(this)
-        inputDarkSkyApi.setText(preferencesManager.preferences.darkSkyApiKey)
+        inputWeatherApiKey.setText(preferencesManager.preferences.weatherApiKey)
         inputWeatherLatitude.setText(preferencesManager.preferences.weatherLatitude)
         inputWeatherLongitude.setText(preferencesManager.preferences.weatherLongitude)
         inputRssUrl.setText(preferencesManager.preferences.rssUrl)

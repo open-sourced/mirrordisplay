@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.johnhiott.darkskyandroidlib.models.DataPoint
 import de.opensourced.mirrordisplay.Objects.PreferencesManager
 import de.opensourced.mirrordisplay.services.AgendaService
 import kotlinx.android.synthetic.main.activity_mirror_display.*
@@ -16,7 +15,7 @@ import de.opensourced.mirrordisplay.services.TimeService
 import de.opensourced.mirrordisplay.util.Constants.Companion.PERCENT
 import de.opensourced.mirrordisplay.util.Constants.Companion.TEMPERATURE_METRIC
 import de.opensourced.mirrordisplay.util.Constants.Companion.VELOCITY
-import de.opensourced.mirrordisplay.util.WeatherIconGenerator
+import de.opensourced.mirrordisplay.util.WeatherIconHelper
 import java.util.*
 import kotlin.math.roundToInt
 import android.support.v7.widget.LinearLayoutManager
@@ -26,6 +25,7 @@ import android.view.WindowManager
 import de.opensourced.mirrordisplay.adapter.CalendarItemAdapter
 import de.opensourced.mirrordisplay.adapter.RssFeedItemAdapter
 import de.opensourced.mirrordisplay.models.CalendarEvent
+import de.opensourced.mirrordisplay.models.OpenWeatherData
 import de.opensourced.mirrordisplay.models.RssFeedData
 import de.opensourced.mirrordisplay.services.RssService
 import kotlin.collections.HashSet
@@ -63,114 +63,117 @@ class MirrorDisplay : AppCompatActivity() {
         timeService = TimeService(
                 this,
                 Runnable {
-                    runOnUiThread({
+                    runOnUiThread {
                         displayTime(timeService.timeString, timeService.dateString)
-                    })
+                    }
                 },
                 Runnable {
                     Log.e("TimeService", "Error: " + timeService.lastException)
                 }
-        )
+                                 )
         timeService.startService()
-        val weatherIconGenerator = WeatherIconGenerator()
+        val weatherIconGenerator = WeatherIconHelper()
         forecastService = ForecastService(
                 preferencesManager.preferences.weatherLatitude,
                 preferencesManager.preferences.weatherLongitude,
-                preferencesManager.preferences.darkSkyApiKey,
-                Runnable { runOnUiThread({ displayWeather(weatherIconGenerator) }) },
+                preferencesManager.preferences.weatherApiKey,
+                Runnable { runOnUiThread { displayWeather(weatherIconGenerator) } },
                 Runnable { Log.e("ForecastService", "Error: " + forecastService.lastException) }
-        )
+                                         )
         forecastService.startService()
         agendaService = AgendaService(
                 this,
-                Runnable { runOnUiThread({ displayCalendar() }) },
+                Runnable { runOnUiThread { displayCalendar() } },
                 Runnable { Log.e("AgendaService", "Error: " + agendaService.lastException) }
-        )
+                                     )
         agendaService.startService()
         rssService = RssService(
                 this,
                 preferencesManager.preferences.rssUrl,
                 preferencesManager.preferences.rssNumber,
-                Runnable { runOnUiThread({ displayRssFeed() }) },
+                Runnable { runOnUiThread { displayRssFeed() } },
                 Runnable { Log.e("RssService", "Error: " + rssService.lastException) }
-        )
+                               )
         rssService.startService()
     }
 
-    private fun displayWeather(weatherIconGenerator: WeatherIconGenerator) {
-        forecastService.lastWeatherResponse?.let {
-            val currently = it.currently
-            imageWeatherCurrent.setImageResource(weatherIconGenerator.getIcon(currently.icon))
+    private fun displayWeather(weatherIconHelper: WeatherIconHelper) {
+        val latestWeatherForecast = forecastService.latestWeatherForecast
+        latestWeatherForecast?.today?.let {
+            weatherIconHelper.loadIcon(it.iconId, imageWeatherCurrent)
+
             containerWeatherCurrent.visibility = View.VISIBLE
-            txtTempCurrent.text = String.format("%d $TEMPERATURE_METRIC (%d $TEMPERATURE_METRIC)",
-                    currently.temperature.roundToInt(),
-                    currently.apparentTemperature.roundToInt()
-            )
+            txtTempCurrent.text = String.format("%d $TEMPERATURE_METRIC / %d $TEMPERATURE_METRIC (%d $TEMPERATURE_METRIC)",
+                                                it.temperatureMin.roundToInt(),
+                                                it.temperatureMax.roundToInt(),
+                                                it.temperatureFeel.roundToInt()
+                                               )
             txtPrecipitationCurrent.text = String.format(
                     "%d %$PERCENT",
-                    (currently.precipProbability.toDouble() * 100).toInt()
-            )
+                    it.precipitation.toInt()
+                                                        )
             txtHumidityCurrent.text = String.format(
                     "%d %$PERCENT",
-                    (currently.humidity.toDouble() * 100).toInt()
-            )
-            txtWindCurrent.text = String.format("%.2f $VELOCITY", currently.windSpeed.toDouble() * 3600 / 1000)
-            val precipType = currently.precipType
-            if(precipType != null && (precipType == "snow" || precipType == "sleet")) {
-                imageWeatherSnow.visibility = View.VISIBLE
-            }else{
-                imageWeatherSnow.visibility = View.INVISIBLE
-            }
-
-            renderWeather(
-                    weatherIconGenerator,
-                    containerWeatherDay1,
-                    it.daily.data[1],
-                    txtTitleDay1,
-                    txtTempDay1,
-                    txtPrecipitationDay1,
-                    txtHumidityDay1,
-                    txtWindDay1,
-                    imageWeatherDay1
-            )
-            renderWeather(
-                    weatherIconGenerator,
-                    containerWeatherDay2,
-                    it.daily.data[2],
-                    txtTitleDay2,
-                    txtTempDay2,
-                    txtPrecipitationDay2,
-                    txtHumidityDay2,
-                    txtWindDay2,
-                    imageWeatherDay2
-            )
-            renderWeather(
-                    weatherIconGenerator,
-                    containerWeatherDay3,
-                    it.daily.data[3],
-                    txtTitleDay3,
-                    txtTempDay3,
-                    txtPrecipitationDay3,
-                    txtHumidityDay3,
-                    txtWindDay3,
-                    imageWeatherDay3
-            )
+                    it.humidity.toInt()
+                                                   )
+            txtWindCurrent.text = String.format("%.2f $VELOCITY", it.windSpeed * 3600 / 1000)
+            txtUVICurrent.text = String.format("%.2f UVI", it.uvi)
+        }
+        latestWeatherForecast?.tomorrow?.let {
+            renderWeather(weatherIconHelper,
+                          containerWeatherDay1,
+                          it,
+                          txtTitleDay1,
+                          txtTempDay1,
+                          txtPrecipitationDay1,
+                          txtHumidityDay1,
+                          txtWindDay1,
+                          txtUVIDay1,
+                          imageWeatherDay1)
+        }
+        latestWeatherForecast?.dayAfterTomorrow?.let {
+            renderWeather(weatherIconHelper,
+                          containerWeatherDay2,
+                          it,
+                          txtTitleDay2,
+                          txtTempDay2,
+                          txtPrecipitationDay2,
+                          txtHumidityDay2,
+                          txtWindDay2,
+                          txtUVIDay2,
+                          imageWeatherDay2)
+        }
+        latestWeatherForecast?.dayAfterTheDayTomorrow?.let {
+            renderWeather(weatherIconHelper,
+                          containerWeatherDay3,
+                          it,
+                          txtTitleDay3,
+                          txtTempDay3,
+                          txtPrecipitationDay3,
+                          txtHumidityDay3,
+                          txtWindDay3,
+                          txtUVIDay3,
+                          imageWeatherDay3)
         }
     }
 
-    private fun renderWeather(weatherIconGenerator: WeatherIconGenerator, container: LinearLayout,
-                              weatherData: DataPoint?, txtWeekday: TextView, txtTemperature: TextView,
-                              txtPrecipitation: TextView, txtHumidity: TextView, txtWind: TextView,
+    private fun renderWeather(weatherIconHelper: WeatherIconHelper, container: LinearLayout,
+                              weatherData: OpenWeatherData?, txtWeekday: TextView, txtTemperature: TextView,
+                              txtPrecipitation: TextView, txtHumidity: TextView, txtWind: TextView, txtUvi: TextView,
                               imgWeatherIcon: ImageView) {
         weatherData?.let {
             container.visibility = View.VISIBLE
             val weekdayDayAfterTomorrow = String.format(currentLocale, "%tA", it.time * 1000L)
             txtWeekday.text = weekdayDayAfterTomorrow
-            txtTemperature.text = String.format("%d $TEMPERATURE_METRIC / %d $TEMPERATURE_METRIC", it.temperatureMin.roundToInt(), it.temperatureMax.roundToInt())
-            txtPrecipitation.text = String.format("%d %$PERCENT", (it.precipProbability.toDouble() * 100).toInt())
-            txtHumidity.text = String.format("%d %$PERCENT", (it.humidity.toDouble() * 100).toInt())
-            txtWind.text = String.format("%.2f $VELOCITY", it.windSpeed.toDouble() * 3600 / 1000)
-            imgWeatherIcon.setImageResource(weatherIconGenerator.getIcon(it.icon))
+            txtTemperature.text = String.format("%d $TEMPERATURE_METRIC / %d $TEMPERATURE_METRIC (%d $TEMPERATURE_METRIC)",
+                                                it.temperatureMin.roundToInt(),
+                                                it.temperatureMax.roundToInt(),
+                                                it.temperatureFeel.roundToInt())
+            txtPrecipitation.text = String.format("%d %$PERCENT", it.precipitation.toInt())
+            txtHumidity.text = String.format("%d %$PERCENT", it.humidity.toInt())
+            txtWind.text = String.format("%.2f $VELOCITY", it.windSpeed * 3600 / 1000)
+            txtUvi.text = String.format("%.2f UVI", it.uvi)
+            weatherIconHelper.loadIcon(it.iconId, imgWeatherIcon)
         }
     }
 
@@ -185,13 +188,13 @@ class MirrorDisplay : AppCompatActivity() {
         if (calenderEvents.isEmpty()) {
             calenderEvents.add(CalendarEvent(getString(R.string.EMPTY_AGENDA), "", 0, 0, ""))
         }
-        viewCalendar.adapter.notifyDataSetChanged()
+        viewCalendar.adapter?.notifyDataSetChanged()
     }
 
     private fun displayRssFeed() {
         rssFeedData.clear()
         rssFeedData.addAll(rssService.feedData)
-        viewRssfeed.adapter.notifyDataSetChanged()
+        viewRssfeed.adapter?.notifyDataSetChanged()
     }
 
 }

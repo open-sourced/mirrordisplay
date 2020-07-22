@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_weight="0"
-        app:srcCompat="@drawable/ic_event" />
+        android:contentDescription="TODO" app:srcCompat="@drawable/ic_event" />
 
     <TextView
         android:id="@+id/calendarItem_tvTitle"

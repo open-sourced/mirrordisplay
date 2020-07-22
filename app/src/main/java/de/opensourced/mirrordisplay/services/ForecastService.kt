@@ -1,46 +1,31 @@
 package de.opensourced.mirrordisplay.services
 
-import com.johnhiott.darkskyandroidlib.ForecastApi
-import com.johnhiott.darkskyandroidlib.RequestBuilder
-import com.johnhiott.darkskyandroidlib.models.Request
-import com.johnhiott.darkskyandroidlib.models.WeatherResponse
-import retrofit.Callback
-import retrofit.RetrofitError
-import retrofit.client.Response
+import de.opensourced.mirrordisplay.exceptions.WeatherRequestFailedException
+import de.opensourced.mirrordisplay.models.OpenWeatherForecast
+import de.opensourced.mirrordisplay.util.OpenWeatherLoader
 
-class ForecastService(lat: String, long: String, darkSkyApiKey: String, callbackOnUpdate: Runnable,
-                      callbackOnError: Runnable) : BaseService(callbackOnUpdate, callbackOnError) {
 
-    private val weatherRequestBuilder: RequestBuilder
-    private val weatherRequest: Request
-    var lastWeatherResponse: WeatherResponse? = null
-    var lastError: RetrofitError? = null
+class ForecastService(private val lat: String, private val long: String, private val openWeatherApiKey: String,
+                      callbackOnUpdate: Runnable, callbackOnError: Runnable) : BaseService(callbackOnUpdate,
+                                                                                           callbackOnError) {
 
-    init {
-        ForecastApi.create(darkSkyApiKey)
-        weatherRequestBuilder = RequestBuilder()
-        weatherRequest = Request()
-        weatherRequest.lat = lat
-        weatherRequest.lng = long
-        weatherRequest.units = Request.Units.SI
-        weatherRequest.language = Request.Language.ENGLISH
-    }
+    var latestWeatherForecast: OpenWeatherForecast? = null
+    var lastError: WeatherRequestFailedException? = null
 
     override fun getIntervalMilliseconds(): Long {
         return 30 * 60 * 1000
     }
 
     override fun work() {
-        weatherRequestBuilder.getWeather(weatherRequest, object : Callback<WeatherResponse> {
-            override fun success(weatherResponse: WeatherResponse, response: Response) {
-                lastWeatherResponse = weatherResponse
-                callbackOnUpdate.run()
-            }
-
-            override fun failure(retrofitError: RetrofitError) {
-                lastError = retrofitError
-                callbackOnError.run()
-            }
-        })
+        val openWeatherLoader = OpenWeatherLoader(openWeatherApiKey,
+                                                  lat,
+                                                  long) {
+            latestWeatherForecast = it
+        }
+        try {
+            openWeatherLoader.requestWeather()
+        } catch (e: WeatherRequestFailedException) {
+            lastError = e
+        }
     }
 }
